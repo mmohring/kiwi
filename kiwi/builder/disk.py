@@ -393,6 +393,16 @@ class DiskBuilder(object):
         # prepare for install media if requested
         if self.install_media:
             if self.initrd_system == 'dracut':
+
+                # TODO: this needs to change in a way that dracut is
+                # called with a different config file to create an
+                # initrd for the install iso which also must be
+                # another file and not overwriting the initrd for
+                # the system created before
+                #
+                # so self.boot_image.create_initrd() should allow
+                # for a target file option and config file
+
                 # for the installation process we need a kiwi initrd
                 # Therefore an extra install boot root system needs to
                 # be prepared if dracut was set as the initrd system
