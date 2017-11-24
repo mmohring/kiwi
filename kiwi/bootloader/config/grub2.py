@@ -330,10 +330,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'kernel_file': kernel,
             'initrd_file': initrd,
             'boot_options': ' '.join(
-                [self.cmdline] + self.live_boot_options
+                [self.cmdline] + self.install_boot_options
             ),
             'failsafe_boot_options': ' '.join(
-                [self.cmdline_failsafe] + self.live_boot_options
+                [self.cmdline_failsafe] + self.install_boot_options
             ),
             'gfxmode': self.gfxmode,
             'theme': self.theme,

@@ -213,7 +213,7 @@ class Defaults(object):
         """
         Implements default value for ISO volume ID for install media
         """
-        return 'KIWI.Installation.System'
+        return 'INSTALL'
 
     @classmethod
     def get_default_video_mode(self):

@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from tempfile import mkdtemp
 import platform
 
@@ -100,6 +101,9 @@ class InstallImageBuilder(object):
                 '-' + xml_state.get_image_version(),
                 '.install.tar.xz'
             ]
+        )
+        self.dracut_config_file = ''.join(
+            [self.root_dir, '/etc/dracut.conf.d/01-kiwi-install.conf']
         )
         self.squashed_diskname = ''.join(
             [xml_state.xml_data.get_name(), '.raw']
@@ -315,6 +319,8 @@ class InstallImageBuilder(object):
                     'No hypervisor in boot image tree %s found' %
                     self.boot_image_task.boot_root_directory
                 )
+        if self.initrd_system == 'dracut':
+            self._create_dracut_install_config()
         self.boot_image_task.create_initrd(self.mbrid, 'initrd_kiwi_install')
         Command.run(
             [
@@ -342,6 +348,8 @@ class InstallImageBuilder(object):
                     'No hypervisor in boot image tree %s found' %
                     self.boot_image_task.boot_root_directory
                 )
+        if self.initrd_system == 'dracut':
+            self._create_dracut_install_config()
         self.boot_image_task.create_initrd(self.mbrid, 'initrd_kiwi_install')
         Command.run(
             [
@@ -361,8 +369,31 @@ class InstallImageBuilder(object):
         with open(initrd_trigger, 'w') as vmx_system:
             vmx_system.write('IMAGE="%s"\n' % self.squashed_diskname)
 
+    def _create_dracut_install_config(self):
+        dracut_config = [
+            'hostonly="no"',
+            'dracut_rescue_image="no"'
+        ]
+        dracut_modules = ['kiwi-lib', 'kiwi-dump']
+        dracut_modules_omit = ['kiwi-overlay', 'kiwi-repart']
+        dracut_config.append(
+            'add_dracutmodules+=" {0} "'.format(' '.join(dracut_modules))
+        )
+        dracut_config.append(
+            'omit_dracutmodules+= {0} "'.format(' '.join(dracut_modules_omit))
+        )
+        with open(self.dracut_config_file, 'w') as config:
+            for entry in dracut_config:
+                config.write(entry + os.linesep)
+
+    def _delete_dracut_install_config(self):
+        if os.path.exists(self.dracut_config_file):
+            os.remove(self.dracut_config_file)
+
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)
+        if self.initrd_system == 'dracut':
+            self._delete_dracut_install_config()
         if self.media_dir:
             Path.wipe(self.media_dir)
         if self.pxe_dir:

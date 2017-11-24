@@ -173,6 +173,25 @@ class TestInstallImageBuilder(object):
             'uefi'
         )
 
+        tmpdir_name = ['temp-squashfs', 'temp_media_dir']
+        file_mock.write.reset_mock()
+        mock_open.reset_mock()
+        self.install_image.initrd_system = 'dracut'
+
+        self.install_image.create_install_iso()
+
+        assert mock_open.call_args_list == [
+            call('temp_media_dir/config.isoclient', 'w'),
+            call('root_dir/etc/dracut.conf.d/01-kiwi-install.conf', 'w')
+        ]
+        assert file_mock.write.call_args_list == [
+            call('IMAGE="result-image.raw"\n'),
+            call('hostonly="no"\n'),
+            call('dracut_rescue_image="no"\n'),
+            call('add_dracutmodules+=" kiwi-lib kiwi-dump "\n'),
+            call('omit_dracutmodules+= kiwi-overlay kiwi-repart "\n')
+        ]
+
     @patch('kiwi.builder.install.mkdtemp')
     @patch_open
     @patch('kiwi.builder.install.Command.run')
@@ -293,11 +312,18 @@ class TestInstallImageBuilder(object):
         )
 
     @patch('kiwi.builder.install.Path.wipe')
-    def test_destructor(self, mock_wipe):
+    @patch('os.path.exists')
+    @patch('os.remove')
+    def test_destructor(self, mock_remove, mock_exists, mock_wipe):
+        mock_exists.return_value = True
+        self.install_image.initrd_system = 'dracut'
         self.install_image.pxe_dir = 'pxe-dir'
         self.install_image.media_dir = 'media-dir'
         self.install_image.squashed_contents = 'squashed-dir'
         self.install_image.__del__()
+        mock_remove.assert_called_once_with(
+            'root_dir/etc/dracut.conf.d/01-kiwi-install.conf'
+        )
         assert mock_wipe.call_args_list == [
             call('media-dir'), call('pxe-dir'), call('squashed-dir')
         ]

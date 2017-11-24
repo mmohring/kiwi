@@ -438,8 +438,7 @@ class TestDiskBuilder(object):
             call('boot_dir/config.partids', 'w'),
             call('root_dir/boot/mbrid', 'w'),
             call('root_dir/etc/dracut.conf.d/02-kiwi.conf', 'w'),
-            call('/dev/some-loop', 'wb'),
-            call('root_dir/etc/dracut.conf.d/01-kiwi-install.conf', 'w')
+            call('/dev/some-loop', 'wb')
         ]
         assert self.file_mock.write.call_args_list == [
             call('kiwi_BootPart="1"\n'),
@@ -448,10 +447,7 @@ class TestDiskBuilder(object):
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
             call('add_dracutmodules+=" kiwi-lib kiwi-repart "\n'),
-            call(bytes(b'\x0f\x0f\x0f\x0f')),
-            call('hostonly="no"\n'),
-            call('dracut_rescue_image="no"\n'),
-            call('add_dracutmodules+=" kiwi-lib kiwi-dump "\n')
+            call(bytes(b'\x0f\x0f\x0f\x0f'))
         ]
         assert mock_command.call_args_list == [
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
@@ -561,10 +557,7 @@ class TestDiskBuilder(object):
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
             call('add_dracutmodules+=" kiwi-overlay kiwi-lib kiwi-repart "\n'),
-            call(b'\x0f\x0f\x0f\x0f'),
-            call('hostonly="no"\n'),
-            call('dracut_rescue_image="no"\n'),
-            call('add_dracutmodules+=" kiwi-lib kiwi-dump "\n')
+            call(b'\x0f\x0f\x0f\x0f')
         ]
 
     @patch('kiwi.builder.disk.FileSystem')
