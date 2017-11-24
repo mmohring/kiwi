@@ -209,6 +209,13 @@ class Defaults(object):
         return 'CDROM'
 
     @classmethod
+    def get_install_volume_id(self):
+        """
+        Implements default value for ISO volume ID for install media
+        """
+        return 'KIWI.Installation.System'
+
+    @classmethod
     def get_default_video_mode(self):
         """
         Implements 800x600 default video mode

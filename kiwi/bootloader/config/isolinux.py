@@ -98,8 +98,9 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             'root=live:CDLABEL={0}'.format(self.volume_id),
             'rd.live.image'
         ]
-
-        # TODO: create install_boot_options with root=install:CDLABEL={0}
+        self.install_boot_options = [
+            'root=install:CDLABEL={0}'.format(Defaults.get_install_volume_id())
+        ]
 
         if self.xml_state.build_type.get_hybridpersistent():
             self.live_boot_options += \
@@ -163,11 +164,12 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
             'default_boot': self.get_install_image_boot_default('isolinux'),
             'kernel_file': kernel,
             'initrd_file': initrd,
-
-            # TODO: make sure self.install_boot_options are passed in
-
-            'boot_options': self.cmdline,
-            'failsafe_boot_options': self.cmdline_failsafe,
+            'boot_options': ' '.join(
+                [self.cmdline] + self.install_boot_options
+            ),
+            'failsafe_boot_options': ' '.join(
+                [self.cmdline_failsafe] + self.install_boot_options
+            ),
             'gfxmode': self.gfxmode,
             'boot_timeout': self.timeout,
             'title': self.get_menu_entry_install_title()

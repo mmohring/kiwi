@@ -72,6 +72,7 @@ class InstallImageBuilder(object):
         self.target_dir = target_dir
         self.boot_image_task = boot_image_task
         self.xml_state = xml_state
+        self.initrd_system = xml_state.get_initrd_system()
         self.firmware = FirmWare(xml_state)
         self.diskname = ''.join(
             [
@@ -133,7 +134,7 @@ class InstallImageBuilder(object):
         # custom iso metadata
         self.custom_iso_args = {
             'create_options': [
-                '-V', '"KIWI Installation System"',
+                '-V', Defaults.get_install_volume_id(),
                 '-A', self.mbrid.get_id()
             ]
         }
@@ -146,8 +147,10 @@ class InstallImageBuilder(object):
         checksum = Checksum(self.diskname)
         checksum.md5(self.squashed_contents + '/' + self.md5name)
 
-        # the kiwi initrd code triggers the install by trigger files
-        self._create_iso_install_trigger_files()
+        # the system image name is stored in a config file
+        self._write_install_image_info_to_iso_image()
+        if self.initrd_system == 'kiwi':
+            self._write_install_image_info_to_boot_image()
 
         # the system image is stored as squashfs embedded file
         log.info('Creating squashfs embedded disk image')
@@ -263,8 +266,9 @@ class InstallImageBuilder(object):
         checksum = Checksum(self.diskname)
         checksum.md5(pxe_md5_filename)
 
-        # the kiwi initrd code triggers the install by trigger files
-        self._create_pxe_install_trigger_files()
+        # the install image name is stored in a config file
+        if self.initrd_system == 'kiwi':
+            self._write_install_image_info_to_boot_image()
 
         # create pxe config append information
         # this information helps to configure the boot server correctly
@@ -311,7 +315,7 @@ class InstallImageBuilder(object):
                     'No hypervisor in boot image tree %s found' %
                     self.boot_image_task.boot_root_directory
                 )
-        self.boot_image_task.create_initrd(self.mbrid)
+        self.boot_image_task.create_initrd(self.mbrid, 'initrd_kiwi_install')
         Command.run(
             [
                 'mv', self.boot_image_task.initrd_filename,
@@ -338,7 +342,7 @@ class InstallImageBuilder(object):
                     'No hypervisor in boot image tree %s found' %
                     self.boot_image_task.boot_root_directory
                 )
-        self.boot_image_task.create_initrd(self.mbrid)
+        self.boot_image_task.create_initrd(self.mbrid, 'initrd_kiwi_install')
         Command.run(
             [
                 'mv', self.boot_image_task.initrd_filename,
@@ -346,16 +350,12 @@ class InstallImageBuilder(object):
             ]
         )
 
-    def _create_iso_install_trigger_files(self):
-        initrd_trigger = \
-            self.boot_image_task.boot_root_directory + '/config.vmxsystem'
+    def _write_install_image_info_to_iso_image(self):
         iso_trigger = self.media_dir + '/config.isoclient'
-        with open(initrd_trigger, 'w') as vmx_system:
-            vmx_system.write('IMAGE="%s"\n' % self.squashed_diskname)
         with open(iso_trigger, 'w') as iso_system:
             iso_system.write('IMAGE="%s"\n' % self.squashed_diskname)
 
-    def _create_pxe_install_trigger_files(self):
+    def _write_install_image_info_to_boot_image(self):
         initrd_trigger = \
             self.boot_image_task.boot_root_directory + '/config.vmxsystem'
         with open(initrd_trigger, 'w') as vmx_system:

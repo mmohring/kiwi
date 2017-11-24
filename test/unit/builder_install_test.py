@@ -56,6 +56,9 @@ class TestInstallImageBuilder(object):
             return_value=self.kernel
         )
         self.xml_state = mock.Mock()
+        self.xml_state.get_initrd_system = mock.Mock(
+            return_value='kiwi'
+        )
         self.xml_state.xml_data.get_name = mock.Mock(
             return_value='result-image'
         )
@@ -119,8 +122,8 @@ class TestInstallImageBuilder(object):
             'temp-squashfs/result-image.md5'
         )
         assert mock_open.call_args_list == [
-            call('initrd_dir/config.vmxsystem', 'w'),
-            call('temp_media_dir/config.isoclient', 'w')
+            call('temp_media_dir/config.isoclient', 'w'),
+            call('initrd_dir/config.vmxsystem', 'w')
         ]
         assert file_mock.write.call_args_list == [
             call('IMAGE="result-image.raw"\n'),
@@ -141,7 +144,7 @@ class TestInstallImageBuilder(object):
             call(), call()
         ]
         self.boot_image_task.create_initrd.assert_called_once_with(
-            self.mbrid
+            self.mbrid, 'initrd_kiwi_install'
         )
         self.kernel.copy_kernel.assert_called_once_with(
             'temp_media_dir/boot/x86_64/loader', '/linux'
@@ -277,7 +280,7 @@ class TestInstallImageBuilder(object):
             'tmpdir', '/pxeboot.xen.gz'
         )
         self.boot_image_task.create_initrd.assert_called_once_with(
-            self.mbrid
+            self.mbrid, 'initrd_kiwi_install'
         )
         assert mock_command.call_args_list[1] == call(
             ['mv', 'initrd', 'tmpdir/pxeboot.initrd.xz']
