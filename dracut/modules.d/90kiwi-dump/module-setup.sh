@@ -15,7 +15,7 @@ installkernel() {
 install() {
     declare moddir=${moddir}
     inst_hook cmdline 30 "${moddir}/parse-kiwi-install.sh"
-    inst_hook pre-udev 30 "${moddir}/kiwi-install-genrules.sh"
-    inst_script "${moddir}/kiwi-dump-image.sh" "/sbin/kiwi-dump-image"
+    inst_hook pre-mount 30 "${moddir}/kiwi-dump-image.sh"
+    inst_rules 60-cdrom_id.rules
     dracut_need_initqueue
 }
