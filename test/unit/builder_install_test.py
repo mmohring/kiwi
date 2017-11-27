@@ -182,14 +182,14 @@ class TestInstallImageBuilder(object):
 
         assert mock_open.call_args_list == [
             call('temp_media_dir/config.isoclient', 'w'),
-            call('root_dir/etc/dracut.conf.d/01-kiwi-install.conf', 'w')
+            call('root_dir/etc/dracut.conf.d/02-kiwi.conf', 'w')
         ]
         assert file_mock.write.call_args_list == [
             call('IMAGE="result-image.raw"\n'),
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
             call('add_dracutmodules+=" kiwi-lib kiwi-dump "\n'),
-            call('omit_dracutmodules+= kiwi-overlay kiwi-repart "\n')
+            call('omit_dracutmodules+=" kiwi-overlay kiwi-repart "\n')
         ]
 
     @patch('kiwi.builder.install.mkdtemp')
@@ -311,6 +311,24 @@ class TestInstallImageBuilder(object):
             'tmpdir', xz_options=None
         )
 
+        file_mock.write.reset_mock()
+        mock_open.reset_mock()
+        self.install_image.initrd_system = 'dracut'
+
+        self.install_image.create_install_pxe_archive()
+
+        assert mock_open.call_args_list == [
+            call('tmpdir/result-image.append', 'w'),
+            call('root_dir/etc/dracut.conf.d/02-kiwi.conf', 'w')
+        ]
+        assert file_mock.write.call_args_list == [
+            call('pxe=1 custom_kernel_options\n'),
+            call('hostonly="no"\n'),
+            call('dracut_rescue_image="no"\n'),
+            call('add_dracutmodules+=" kiwi-lib kiwi-dump "\n'),
+            call('omit_dracutmodules+=" kiwi-overlay kiwi-repart "\n')
+        ]
+
     @patch('kiwi.builder.install.Path.wipe')
     @patch('os.path.exists')
     @patch('os.remove')
@@ -322,7 +340,7 @@ class TestInstallImageBuilder(object):
         self.install_image.squashed_contents = 'squashed-dir'
         self.install_image.__del__()
         mock_remove.assert_called_once_with(
-            'root_dir/etc/dracut.conf.d/01-kiwi-install.conf'
+            'root_dir/etc/dracut.conf.d/02-kiwi.conf'
         )
         assert mock_wipe.call_args_list == [
             call('media-dir'), call('pxe-dir'), call('squashed-dir')

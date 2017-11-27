@@ -447,6 +447,7 @@ class TestDiskBuilder(object):
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
             call('add_dracutmodules+=" kiwi-lib kiwi-repart "\n'),
+            call('omit_dracutmodules+=" kiwi-dump "\n'),
             call(bytes(b'\x0f\x0f\x0f\x0f'))
         ]
         assert mock_command.call_args_list == [
@@ -557,6 +558,7 @@ class TestDiskBuilder(object):
             call('hostonly="no"\n'),
             call('dracut_rescue_image="no"\n'),
             call('add_dracutmodules+=" kiwi-overlay kiwi-lib kiwi-repart "\n'),
+            call('omit_dracutmodules+=" kiwi-dump "\n'),
             call(b'\x0f\x0f\x0f\x0f')
         ]
 

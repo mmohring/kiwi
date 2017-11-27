@@ -103,7 +103,7 @@ class InstallImageBuilder(object):
             ]
         )
         self.dracut_config_file = ''.join(
-            [self.root_dir, '/etc/dracut.conf.d/01-kiwi-install.conf']
+            [self.root_dir, '/etc/dracut.conf.d/02-kiwi.conf']
         )
         self.squashed_diskname = ''.join(
             [xml_state.xml_data.get_name(), '.raw']
@@ -380,7 +380,7 @@ class InstallImageBuilder(object):
             'add_dracutmodules+=" {0} "'.format(' '.join(dracut_modules))
         )
         dracut_config.append(
-            'omit_dracutmodules+= {0} "'.format(' '.join(dracut_modules_omit))
+            'omit_dracutmodules+=" {0} "'.format(' '.join(dracut_modules_omit))
         )
         with open(self.dracut_config_file, 'w') as config:
             for entry in dracut_config:

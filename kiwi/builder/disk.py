@@ -651,6 +651,7 @@ class DiskBuilder(object):
             'dracut_rescue_image="no"'
         ]
         dracut_modules = []
+        dracut_modules_omit = ['kiwi-dump']
         if self.root_filesystem_is_overlay:
             dracut_modules.append('kiwi-overlay')
         if self.build_type_name == 'oem':
@@ -658,6 +659,9 @@ class DiskBuilder(object):
             dracut_modules.append('kiwi-repart')
         dracut_config.append(
             'add_dracutmodules+=" {0} "'.format(' '.join(dracut_modules))
+        )
+        dracut_config.append(
+            'omit_dracutmodules+=" {0} "'.format(' '.join(dracut_modules_omit))
         )
         with open(dracut_config_file, 'w') as config:
             for entry in dracut_config:
