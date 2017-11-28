@@ -20,7 +20,7 @@ install() {
         btrfs xfs_growfs resize2fs \
         e2fsck btrfsck xfs_repair \
         vgs vgchange lvextend lvcreate lvresize pvresize \
-        fbiterm mdadm cryptsetup
+        fbiterm mdadm cryptsetup dialog
     inst_simple \
         "${moddir}/kiwi-lib.sh" "/lib/kiwi-lib.sh"
     inst_simple \
