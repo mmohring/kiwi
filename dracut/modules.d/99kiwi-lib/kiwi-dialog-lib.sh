@@ -55,7 +55,6 @@ function _setup_interactive_service {
         echo "StandardError=inherit"
         echo "KillMode=process"
         echo "IgnoreSIGPIPE=no"
-        echo "TaskMax=infinity"
         echo "KillSignal=SIGHUP"
     } > ${service}
 }
