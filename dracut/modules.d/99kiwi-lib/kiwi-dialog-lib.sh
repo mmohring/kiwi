@@ -24,13 +24,16 @@ function get_dialog_result {
     [ -e "${dialog_result}" ] && cat ${dialog_result}; rm -f ${dialog_result}
 }
 
+function stop_plymouth {
+    plymouth --quit --wait
+}
+
 #=========================================
 # Methods considered private
 #-----------------------------------------
 function _setup_interactive_service {
     local service=/usr/lib/systemd/system/dracut-run-interactive.service
     local script=/bin/dracut-interactive
-    local unicode_font=/lib/b16.pcf.gz
     [ -e ${service} ] && return
     {
         echo "[Unit]"
@@ -45,7 +48,7 @@ function _setup_interactive_service {
         echo "Environment=NEWROOT=/sysroot"
         echo "WorkingDirectory=/"
         if _fbiterm_ok; then
-            echo "ExecStart=fbiterm -m ${unicode_font} -- /bin/bash ${script}"
+            echo "ExecStart=fbiterm -- /bin/bash ${script} "
         else
             echo "ExecStart=/bin/bash ${script}"
         fi

@@ -36,5 +36,9 @@ install() {
     inst_simple \
         "${moddir}/kiwi-luks-lib.sh" "/lib/kiwi-luks-lib.sh"
     inst_simple \
-        "/usr/share/fbiterm/fonts/b16.pcf.gz" "/lib/b16.pcf.gz"
+        "/usr/share/fbiterm/fonts/b16.pcf.gz" \
+        "/usr/share/fbiterm/fonts/b16.pcf.gz"
+    inst_simple \
+        "/usr/share/fbiterm/fonts/8x16.pcf.gz" \
+        "/usr/share/fbiterm/fonts/8x16.pcf.gz"
 }
