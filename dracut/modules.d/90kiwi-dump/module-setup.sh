@@ -2,7 +2,7 @@
 
 # called by dracut
 depends() {
-    echo rootfs-block dm
+    echo rootfs-block dm kiwi-lib
     return 0
 }
 
@@ -14,6 +14,8 @@ installkernel() {
 # called by dracut
 install() {
     declare moddir=${moddir}
+    inst_multiple \
+        tr lsblk
     inst_hook cmdline 30 "${moddir}/parse-kiwi-install.sh"
     inst_hook pre-mount 30 "${moddir}/kiwi-dump-image.sh"
     inst_rules 60-cdrom_id.rules
